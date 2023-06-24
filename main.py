@@ -15,6 +15,10 @@ fall_img = help.load_img("./Assets/Sprites/squirrel_jump.png", (63,72,204), -25,
 orange_tree = help.load_img("./Assets/Entities/tree.png", (0,0,0), scale=1.5)
 pink_tree = help.load_img("./Assets/Entities/tree2.png", (0,0,0), scale=1.5)
 fence = help.load_img("./Assets/Entities/fence.png", (255,255,255), scale_coords=[32,19])
+leaf_img = pygame.image.load("./Assets/Entities/leaf.png").convert_alpha()
+leaf_img.set_colorkey((0,0,0))
+leaf_img2 = pygame.image.load("./Assets/Entities/leaf2.png").convert_alpha()
+leaf_img2.set_colorkey((0,0,0))
 
 pass_e_game = {
     'player' : {
@@ -42,7 +46,7 @@ pass_e_game = {
         'ignore_entities' : ["g"]
         },
     'world' : {
-        'leaves' : False,
+        'leaves' : [True, [leaf_img, leaf_img2]],
         'fireflies' : True
         }
     }

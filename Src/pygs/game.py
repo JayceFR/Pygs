@@ -1,7 +1,7 @@
-from .ui import display, grass, fireflies
+from .ui import display, grass, fireflies, bg_particles
 from .entities import player
 from .map import map
-import pygame
+import pygame, random, math
 class Game():
     def __init__(self, window_size = [0,0], double_buf = True):
         self.run = True
@@ -25,13 +25,17 @@ class Game():
             x_pos = loc[0]
             while x_pos < loc[0] + 32:
                 x_pos += 2.5
-                self.grasses.append(grass.grass([x_pos, loc[1]+(14*2)], 2, 9))
+                height = random.randint(3,15)
+                self.grasses.append(grass.grass([x_pos, loc[1]+(14*2) - (height - 9) ], 2, height))
         if game_items['map'].get("ignore_entities"):
             for key in game_items['map']['ignore_entities']:
                 self.e_entities.pop(key)
         self.firefly = None
         if game_items['world'].get("fireflies"):
             self.firefly = fireflies.Fireflies(0, 100, 3000, 1000)
+        self.bg_particle_effect = None
+        if game_items['world'].get("leaves")[0]:
+            self.bg_particle_effect = bg_particles.Master(game_items['world']['leaves'][1])
         self.entity_loc.pop("g")
         self.grass_last_update = 0
         self.grass_cooldown = 50
@@ -67,6 +71,8 @@ class Game():
                     grass.move()
                 self.grass_last_update = time
             self.blit_grass(self.grasses, self.display, scroll, self.player)
+            if self.bg_particle_effect:
+                self.bg_particle_effect.recursive_call(time, self.display, scroll, 1)
             if self.firefly:
                 self.firefly.recursive_call(time, self.display, scroll)
             self.run = self.display.clean()
