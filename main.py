@@ -4,7 +4,7 @@ import Src.pygs.utils.misc as misc
 
 #loading images
 help = misc.Misc()
-display = pygame.display.set_mode((100,100))
+e = game.Game([1000,600], True)
 #player
 idle_animation = help.load_animation("./Assets/Sprites/squirrel_idle.png", 4, 2, (63,72,204))
 print(idle_animation)
@@ -34,12 +34,18 @@ pass_e_game = {
         'is_there_collide_tiles' : True, 
         'is_there_non_collide_tiles': True,
         'entities' : {
+            "g" : [],
             "f" : [fence, [0, -12]],
             "o" : [orange_tree, [69,110]],
             "p" : [pink_tree, [69,110]],
-        }
+            },
+        'ignore_entities' : ["g"]
+        },
+    'world' : {
+        'leaves' : False,
+        'fireflies' : True
         }
     }
 
-e = game.Game([1000,600], True, pass_e_game )
+e.load_game_items(pass_e_game)
 e.game_loop()

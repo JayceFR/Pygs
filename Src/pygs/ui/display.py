@@ -29,10 +29,15 @@ class Display():
     
     def blit(self, img, dest, special_flags = None):
         if special_flags:
-            print("here")
             self.display.blit(img, dest, special_flags=special_flags)
         else:
             self.display.blit(img, dest)
+    
+    def draw_polygon(self, color, points):
+        pygame.draw.polygon(self.display, color, points)
+    
+    def draw_circle(self, color, center, radius):
+        pygame.draw.circle(self.display, color, center, radius)
     
         
         
