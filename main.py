@@ -4,13 +4,13 @@ import Src.pygs.utils.misc as misc
 
 #loading images
 help = misc.Misc()
-e = game.Game([1000,600], True)
+e = game.Game([1000,600], True, is_shader= False, vertex_loc= "./Src/shader/vertex.vert", fragment_loc= "./Src/shader/fragment.frag" )
 #player
-idle_animation = help.load_animation("./Assets/Sprites/squirrel_idle.png", 4, 2, (63,72,204))
+idle_animation = help.load_animation("./Assets/Sprites/squirrel_idle.png", 4, 1, (63,72,204))
 print(idle_animation)
-run_animation = help.load_animation("./Assets/Sprites/squirrel_run.png", 4, 2, (63,72,204))
-jump_img = help.load_img("./Assets/Sprites/squirrel_jump.png", (63,72,204), 45, 2)
-fall_img = help.load_img("./Assets/Sprites/squirrel_jump.png", (63,72,204), -25, 2)
+run_animation = help.load_animation("./Assets/Sprites/squirrel_run.png", 4, 1, (63,72,204))
+jump_img = help.load_img("./Assets/Sprites/squirrel_jump.png", (63,72,204), 45,1)
+fall_img = help.load_img("./Assets/Sprites/squirrel_jump.png", (63,72,204), -25, 1)
 #entities
 orange_tree = help.load_img("./Assets/Entities/tree.png", (0,0,0), scale=1.5)
 pink_tree = help.load_img("./Assets/Entities/tree2.png", (0,0,0), scale=1.5)
@@ -19,6 +19,8 @@ leaf_img = pygame.image.load("./Assets/Entities/leaf.png").convert_alpha()
 leaf_img.set_colorkey((0,0,0))
 leaf_img2 = pygame.image.load("./Assets/Entities/leaf2.png").convert_alpha()
 leaf_img2.set_colorkey((0,0,0))
+
+noise_img = pygame.image.load("./Src/shader/pnoise.png").convert_alpha()
 
 pass_e_game = {
     'player' : {
@@ -47,8 +49,14 @@ pass_e_game = {
         },
     'world' : {
         'leaves' : [True, [leaf_img, leaf_img2]],
-        'fireflies' : True
+        'fireflies' : True,
+        'shader': {
+            'is_shader' : True,
+            'noise_img' : noise_img,
+            'vertex_loc' : "./Src/shader/vertex.vert",
+            'fragment_loc' : "./Src/shader/fragment.frag"
         }
+        },
     }
 
 e.load_game_items(pass_e_game)

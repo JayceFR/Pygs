@@ -1,13 +1,21 @@
 from .ui import display, grass, fireflies, bg_particles
 from .entities import player
 from .map import map
-import pygame, random, math
+import pygame, random, math, time as t
 class Game():
-    def __init__(self, window_size = [0,0], double_buf = True):
+    def __init__(self, window_size = [0,0], double_buf = True, is_shader = False, vertex_loc = "", fragment_loc = ""):
         self.run = True
-        self.display = display.Display("Pygs", window_size[0], window_size[1], double_buf)
+        self.window_size = window_size
+        self.double_buf = double_buf
+        self.shader_stuf = {}
+        self.display = display.Display("Pygs", self.window_size[0], self.window_size[1], self.double_buf)
+        if is_shader:
+            self.display = display.Display("Pygs", self.window_size[0], self.window_size[1], self.double_buf, True, vertex_loc, fragment_loc )
+        else:
+            self.display = display.Display("Pygs", self.window_size[0], self.window_size[1], self.double_buf)
         
     def load_game_items(self, game_items = {'player' : {}, 'map' : {}, 'world' : {}}):
+        self.shader_stuf = game_items['world']['shader']
         entities = {}
         if game_items['map'].get('entities'):
             for entity in game_items['map']['entities'].keys():
@@ -48,6 +56,7 @@ class Game():
     
     def game_loop(self):
         true_scroll = [0,0]
+        start_time = t.time()
         while self.run:
             self.clock.tick(60)
             time = pygame.time.get_ticks()
@@ -75,4 +84,4 @@ class Game():
                 self.bg_particle_effect.recursive_call(time, self.display, scroll, 1)
             if self.firefly:
                 self.firefly.recursive_call(time, self.display, scroll)
-            self.run = self.display.clean()
+            self.run = self.display.clean({"noise_tex1": self.shader_stuf['noise_img']}, { "itime": int((t.time() - start_time) * 100) })
