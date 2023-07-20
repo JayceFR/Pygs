@@ -57,6 +57,8 @@ class Game():
     def game_loop(self):
         true_scroll = [0,0]
         start_time = t.time()
+        #silhouette
+        val = 0
         while self.run:
             self.clock.tick(60)
             time = pygame.time.get_ticks()
@@ -74,6 +76,12 @@ class Game():
                     self.display.blit(self.e_entities[key][0], (loc[0] - scroll[0] - self.e_entities[key][1][0], loc[1] - scroll[1] - self.e_entities[key][1][1]))
             self.player.move(self.tile_rects, time)
             self.player.draw(self.display, scroll)
+            '''
+            #Sillhouette
+            self.display.sillhouette(val)
+            val += 1
+            if val > 255:
+                val = 0'''
             #grass movement
             if time - self.grass_last_update > self.grass_cooldown:
                 for grass in self.grasses:

@@ -4,7 +4,7 @@ import Src.pygs.utils.misc as misc
 
 #loading images
 help = misc.Misc()
-e = game.Game([1000,600], True, is_shader= False, vertex_loc= "./Src/shader/vertex.vert", fragment_loc= "./Src/shader/fragment.frag" )
+e = game.Game([1000,600], True, is_shader= True, vertex_loc= "./Src/shader/vertex.vert", fragment_loc= "./Src/shader/fragment.frag" )
 #player
 idle_animation = help.load_animation("./Assets/Sprites/squirrel_idle.png", 4, 1, (63,72,204))
 print(idle_animation)

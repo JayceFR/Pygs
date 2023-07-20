@@ -46,6 +46,11 @@ class Display():
             self.shader_obj.draw(uniform, variables)
         pygame.display.flip()
         return True
+
+    def sillhouette(self, val):
+        display_mask = pygame.mask.from_surface(self.display)
+        display_sillhoutte = display_mask.to_surface(setcolor=(0,0,0,val), unsetcolor=(0,0,0,0))
+        self.blit(display_sillhoutte, (0,0))
     
     def blit(self, img, dest, special_flags = None):
         if special_flags:
