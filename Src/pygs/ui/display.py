@@ -1,5 +1,6 @@
 import pygame 
 from ..shader import shader
+from ..ui import hud
 
 class Display():
     def __init__(self, title, screen_w, screen_h, double_up = True, open_gl = False, vertex_loc = "", fragment_loc = ""):
@@ -11,6 +12,7 @@ class Display():
         self.vertex_loc = vertex_loc
         self.fragment_loc = fragment_loc
         self.shader_obj = None
+        self.hud = hud.Hud()
         if double_up:
             if self.open_gl:
                 self.screen = pygame.display.set_mode((screen_w, screen_h), pygame.OPENGL | pygame.DOUBLEBUF)
@@ -36,16 +38,14 @@ class Display():
             surf = self.display.copy()
             surf = pygame.transform.scale(surf, (self.screen_w, self.screen_h))
             self.window.blit(surf, (0,0))
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return False
+        self.hud.events()
         if self.shader_obj:
             uniform['tex'] = self.window
             uniform['ui_tex'] = self.ui_display
             #self.shader_obj.draw({"tex" : self.window, "noise_tex1": noise_img, "ui_tex" : ui_display}, { "itime": int((t.time() - start_time) * 100) })
             self.shader_obj.draw(uniform, variables)
         pygame.display.flip()
-        return True
+        return self.hud.get_controls()
 
     def sillhouette(self, val):
         display_mask = pygame.mask.from_surface(self.display)

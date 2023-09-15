@@ -8,6 +8,7 @@ class Game():
         self.window_size = window_size
         self.double_buf = double_buf
         self.shader_stuf = {}
+        self.hud_controls = {"run" : True}
         self.display = display.Display("Pygs", self.window_size[0], self.window_size[1], self.double_buf)
         if is_shader:
             self.display = display.Display("Pygs", self.window_size[0], self.window_size[1], self.double_buf, True, vertex_loc, fragment_loc )
@@ -59,7 +60,7 @@ class Game():
         start_time = t.time()
         #silhouette
         val = 0
-        while self.run:
+        while self.hud_controls["run"]:
             self.clock.tick(60)
             time = pygame.time.get_ticks()
             self.display.redraw()
@@ -74,7 +75,7 @@ class Game():
             for key in self.e_entities.keys():
                 for loc in self.entity_loc[key]:
                     self.display.blit(self.e_entities[key][0], (loc[0] - scroll[0] - self.e_entities[key][1][0], loc[1] - scroll[1] - self.e_entities[key][1][1]))
-            self.player.move(self.tile_rects, time)
+            self.player.move(self.tile_rects, time, self.hud_controls)
             self.player.draw(self.display, scroll)
             '''
             #Sillhouette
@@ -92,4 +93,4 @@ class Game():
                 self.bg_particle_effect.recursive_call(time, self.display, scroll, 1)
             if self.firefly:
                 self.firefly.recursive_call(time, self.display, scroll)
-            self.run = self.display.clean({"noise_tex1": self.shader_stuf['noise_img']}, { "itime": int((t.time() - start_time) * 100) })
+            self.hud_controls = self.display.clean({"noise_tex1": self.shader_stuf['noise_img']}, { "itime": int((t.time() - start_time) * 100) })
