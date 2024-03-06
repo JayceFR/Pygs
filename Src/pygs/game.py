@@ -1,4 +1,4 @@
-from .ui import display, grass, fireflies, bg_particles
+from .ui import display, grass, fireflies, bg_particles, water
 from .entities import player
 from .map import map
 import pygame, random, math, time as t
@@ -21,7 +21,7 @@ class Game():
         if game_items['map'].get('entities'):
             for entity in game_items['map']['entities'].keys():
                 entities[entity] = []
-        print(entities)
+        # print(entities)
         self.e_entities = game_items['map'].get('entities')
         self.map = map.Map(game_items['map']['map_loc'], game_items['map']['width_of_tiles'], game_items['map']['location_of_tiles'], game_items['map']['is_there_collide_tiles'], game_items['map']['is_there_non_collide_tiles'], entities )
         self.tile_rects, self.entity_loc = self.map.get_rect()
@@ -36,6 +36,19 @@ class Game():
                 x_pos += 2.5
                 height = random.randint(3,15)
                 self.grasses.append(grass.grass([x_pos, loc[1]+(14*2) - (height - 9) ], 2, height))
+        #water
+        self.water_pos = []
+        for loc in self.entity_loc['w']:
+            if self.water_pos == []:
+                self.water_pos.append([loc,])
+            else:
+                if loc[0] - 32 == self.water_pos[-1][-1][0]:
+                    self.water_pos[-1].append(loc)
+        self.waters = []
+        self.water_locs = []
+        for locations in self.water_pos:
+            self.waters.append(water.Water((locations[0][0], locations[0][1]+20), (len(locations) + 1) *2, 16, 64-20))
+            self.water_locs.append([(locations[0][0], locations[0][1]+20), (locations[0][0] + len(locations) * 32, locations[0][1] + 64)])
         if game_items['map'].get("ignore_entities"):
             for key in game_items['map']['ignore_entities']:
                 self.e_entities.pop(key)
@@ -60,6 +73,7 @@ class Game():
         start_time = t.time()
         #silhouette
         val = 0
+        # waterm = water.Water((1000,310), 50, 16, 60)
         while self.hud_controls["run"]:
             self.clock.tick(60)
             time = pygame.time.get_ticks()
@@ -75,14 +89,18 @@ class Game():
             for key in self.e_entities.keys():
                 for loc in self.entity_loc[key]:
                     self.display.blit(self.e_entities[key][0], (loc[0] - scroll[0] - self.e_entities[key][1][0], loc[1] - scroll[1] - self.e_entities[key][1][1]))
-            self.player.move(self.tile_rects, time, self.hud_controls)
+            self.player.move(self.tile_rects, time, self.hud_controls, self.water_locs)
             self.player.draw(self.display, scroll)
+            # print(self.player.get_rect().x, self.player.get_rect().y)
             '''
             #Sillhouette
             self.display.sillhouette(val)
             val += 1
             if val > 255:
                 val = 0'''
+            for waterm in self.waters:
+                waterm.update(scroll, self.player.get_rect())
+                waterm.draw(self.display.display, scroll)
             #grass movement
             if time - self.grass_last_update > self.grass_cooldown:
                 for grass in self.grasses:
@@ -93,4 +111,5 @@ class Game():
                 self.bg_particle_effect.recursive_call(time, self.display, scroll, 1)
             if self.firefly:
                 self.firefly.recursive_call(time, self.display, scroll)
-            self.hud_controls = self.display.clean({"noise_tex1": self.shader_stuf['noise_img']}, { "itime": int((t.time() - start_time) * 100) })
+            self.hud_controls = self.display.clean({"noise_tex1": self.shader_stuf['noise_img']}, { "itime": t.time() - start_time })
+            # self.hud_controls = self.display.clean({})

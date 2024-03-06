@@ -41,11 +41,12 @@ pass_e_game = {
         'is_there_non_collide_tiles': True,
         'entities' : {
             "g" : [],
+            "w" : [],
             "f" : [fence, [0, -12]],
             "o" : [orange_tree, [69,110]],
             "p" : [pink_tree, [69,110]],
             },
-        'ignore_entities' : ["g"]
+        'ignore_entities' : ["g", "w"]
         },
     'world' : {
         'leaves' : [True, [leaf_img, leaf_img2]],

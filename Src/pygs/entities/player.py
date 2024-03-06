@@ -33,6 +33,7 @@ class Player():
         self.falling = False
         self.jump_count = 2
         self.joy_value = 0.0
+        self.gravity = 8
 
     def collision_test(self, tiles):
         hitlist = []
@@ -85,9 +86,21 @@ class Player():
                     self.movement[1] = self.rect.y
         return collision_types
     
-    def move(self, tiles, time, hud_controls):
+    def move(self, tiles, time, hud_controls, water_locs):
         self.movement = [0, 0]
-
+        #check if in water
+        in_water = False
+        for locations in water_locs:
+            if self.rect.x > locations[0][0] and self.rect.x < locations[1][0]:
+                if self.rect.y > locations[0][1] and self.rect.y <= locations[1][1]:
+                    in_water = True
+        if in_water:
+            self.speed = 2
+            self.gravity = 2
+        else:
+            self.speed = 4
+            self.gravity = 8
+        
         if self.moving_right:
             self.facing_right = True
             self.movement[0] += self.speed
@@ -113,7 +126,7 @@ class Player():
                 self.frame = 0
 
         if not self.jump:
-            self.movement[1] += 8
+            self.movement[1] += self.gravity
 
         
 
