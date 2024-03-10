@@ -2,10 +2,14 @@
 
 uniform sampler2D tex;
 uniform sampler2D ui_tex;
+uniform sampler2D water_tex;
 uniform float time;
 
 uniform sampler2D noise_tex1;
+uniform sampler2D noise_tex2;
 uniform float itime;
+
+uniform vec2 cam_scroll;
 
 in vec2 uvs;
 out vec4 f_color;
@@ -14,33 +18,73 @@ vec2 random2( vec2 p ) {
     return fract(sin(vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))))*43758.5453);
 }
 
+uniform vec2 scroll = vec2(0.15, -0.05);
+uniform vec2 scroll2 = vec2(0.05, 0.05);
+
+float seamlessNoise(vec2 uv, float tileSize, sampler2D noise) {
+    vec2 st = uv * tileSize;
+    vec2 i_st = floor(st);
+    vec2 f_st = fract(st);
+
+    vec4 a = texture(noise, (i_st + vec2(0.5, 0.5)) / tileSize);
+    vec4 b = texture(noise, (i_st + vec2(1.5, 0.5)) / tileSize);
+    vec4 c = texture(noise, (i_st + vec2(0.5, 1.5)) / tileSize);
+    vec4 d = texture(noise, (i_st + vec2(1.5, 1.5)) / tileSize);
+
+    // Smoothly interpolate between the noise values
+    vec2 smooth_uv = smoothstep(0.0, 1.0, f_st);
+    float value = mix(mix(a.r, b.r, smooth_uv.x), mix(c.r, d.r, smooth_uv.x), smooth_uv.y);
+
+    return value;
+}
+
 void overlay_frag(){
-    f_color = vec4(texture(tex, uvs).rgb ,1.0);
-    vec2 px_uvs = vec2(floor(uvs.x * 320) / 320, floor(uvs.y * 210) / 210);
+    vec4 water_color = texture(water_tex, uvs);
+    vec4 tex_color = vec4(texture(tex, uvs).rgb ,1.0);
+    vec2 px_uvs = vec2(floor(uvs.x * 500) / 500, floor(uvs.y * 300) / 300);
+    vec2 px_uvs2 = vec2((floor(uvs.x * 500) + cam_scroll.x * 0.15)/500, (floor(uvs.y * 300) + cam_scroll.y * 0.15)/300);
     float center_dis = distance(uvs, vec2(0.5,0.5));
-    float noise_val = center_dis + texture(noise_tex1, vec2(px_uvs.x * 1.52 * 2 + itime * 0.1, px_uvs.y * 2 - itime * 0.002)).r * 0.3;
+    float noise_val = center_dis + texture(noise_tex2, vec2(px_uvs.x * 1.52 * 2 + itime * 0.1, px_uvs.y * 2 - itime * 0.002)).r * 0.3;
     vec4 dark = vec4(0.0, 0.0, 0.0, 1.0);
     dark = vec4(0.0, 0.0, 0.0, 1.0);
     float darkness = max(0, noise_val - 0.7) * 10;
     float vignette = max(0, center_dis * center_dis - 0.1) * 5;
     darkness += center_dis;
+    f_color = tex_color;
+    vec2 screen_px_uvs = vec2(floor(uvs.x * 0.05 * 1.52 * 2), floor(uvs.y * 0.05 * 2));
+    px_uvs2 = fract(px_uvs2);
+    //float depth =  texture(noise_tex1, px_uvs2 + scroll * itime * 0.6).r
+    //                    * texture(noise_tex2, px_uvs2 + scroll2 * itime * 0.6 ).r  ;
+    float depth = seamlessNoise(px_uvs2 + scroll * itime * 0.6, 32.0, noise_tex1) * seamlessNoise(px_uvs2 + scroll2 * itime * 0.6, 32.0, noise_tex2);
+    vec4 scree_color = texture(water_tex, px_uvs);
+    //vec4 top_color = smoothstep(0.1, 0.2, depth) * scree_color;
+    f_color = f_color + scree_color;
     f_color = darkness * dark + (1 - darkness) * f_color;
-
-    /*if ( noise_val > 0.85){
-        f_color = vec4(0.1725, 0.0588, 0.2, 1.0);
-    }
-    else if (noise_val  > 0.8){
-        f_color = vec4(0.4275, 0.502, 0.9804, 1.0);
-    }*/
-
+    vec3 fog_color = vec3(0.5,0.1,0.2);
+    f_color = vec4(mix(fog_color, f_color.rgb, depth * 3.4 ), 1.0);
     vec4 ui_color = texture(ui_tex, uvs);
     if (ui_color.a > 0){
         f_color = ui_color;
     }
 }
 
-uniform vec2 scroll = vec2(0.1, 0.3);
-uniform vec2 scroll2 = vec2(-0.13, 0.5);
+void foreground(){
+    vec4 water_color = texture(water_tex, uvs);
+    vec4 tex_color = vec4(texture(tex, uvs).rgb ,1.0);
+    vec2 px_uvs = vec2(floor(uvs.x * 500) / 500, floor(uvs.y * 300) / 300);
+    vec2 px_uvs2 = vec2((floor(uvs.x * 500) + cam_scroll.x * 1)/500, (floor(uvs.y * 300) + cam_scroll.y * 1)/300);
+    f_color = tex_color;
+    float depth = seamlessNoise(px_uvs2 + scroll * itime * 0.6 , 32.0, noise_tex1) * seamlessNoise(px_uvs2 + scroll2 * itime * 0.3, 32.0, noise_tex2) ;
+    vec4 scree_color = texture(water_tex, px_uvs);
+    f_color = f_color + scree_color;
+    vec3 fog_color = vec3(0.55,0.65,0.44);
+    f_color = vec4(mix(fog_color, f_color.rgb, depth * 4.4 ), 0.2);
+    vec4 ui_color = texture(ui_tex, uvs);
+    if (ui_color.a > 0){
+        f_color = ui_color;
+    }
+}
+
 
 void fire(){
     f_color = vec4(texture(tex, uvs).rgb, 1.0);
@@ -102,5 +146,6 @@ void fire(){
 
 void main(){
     //fire();
-    overlay_frag();
+    //overlay_frag();
+    foreground();
 }

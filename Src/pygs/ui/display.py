@@ -28,10 +28,14 @@ class Display():
         if self.open_gl:
             self.shader_obj = shader.Shader(True, vertex_loc, fragment_loc)
             self.ui_display = pygame.Surface((screen_w//2, screen_h//2), pygame.SRCALPHA)
+            self.water_display = pygame.Surface((screen_w//2, screen_h//2), pygame.SRCALPHA) 
         pygame.display.set_caption(title)
     
     def redraw(self):
         self.display.fill((0,0,0))
+        if self.open_gl:
+            self.ui_display.fill((0,0,0,0))
+            self.water_display.fill((0,0,0,0))
 
     def clean(self, uniform = {}, variables = {}):
         if self.double_up:
@@ -42,6 +46,7 @@ class Display():
         if self.shader_obj:
             uniform['tex'] = self.window
             uniform['ui_tex'] = self.ui_display
+            uniform['water_tex'] = self.water_display
             #self.shader_obj.draw({"tex" : self.window, "noise_tex1": noise_img, "ui_tex" : ui_display}, { "itime": int((t.time() - start_time) * 100) })
             self.shader_obj.draw(uniform, variables)
         pygame.display.flip()
@@ -52,16 +57,25 @@ class Display():
         display_sillhoutte = display_mask.to_surface(setcolor=(0,0,0,val), unsetcolor=(0,0,0,0))
         self.blit(display_sillhoutte, (0,0))
     
-    def blit(self, img, dest, special_flags = None):
-        if special_flags:
-            self.display.blit(img, dest, special_flags=special_flags)
+    def blit(self, img, dest, special_flags = None, ui_display = False):
+        if not ui_display:
+            if special_flags:
+                self.display.blit(img, dest, special_flags=special_flags)
+            else:
+                self.display.blit(img, dest)
         else:
-            self.display.blit(img, dest)
+            if special_flags:
+                self.ui_display.blit(img, dest, special_flags=special_flags)
+            else:
+                self.ui_display.blit(img, dest)
+
     
     def draw_polygon(self, color, points):
         pygame.draw.polygon(self.display, color, points)
     
-    def draw_circle(self, color, center, radius):
+    def draw_circle(self, color, center, radius, ui_display = False):
+        if ui_display:
+            pygame.draw.circle(self.ui_display, color, center, radius)    
         pygame.draw.circle(self.display, color, center, radius)
     
         

@@ -20,7 +20,8 @@ leaf_img.set_colorkey((0,0,0))
 leaf_img2 = pygame.image.load("./Assets/Entities/leaf2.png").convert_alpha()
 leaf_img2.set_colorkey((0,0,0))
 
-noise_img = pygame.image.load("./Src/shader/pnoise.png").convert_alpha()
+noise_img = pygame.image.load("./Src/shader/pnoise2.png").convert_alpha()
+noise_img2 = pygame.image.load("./Src/shader/pnoise.png").convert_alpha()
 
 pass_e_game = {
     'player' : {
@@ -54,6 +55,7 @@ pass_e_game = {
         'shader': {
             'is_shader' : True,
             'noise_img' : noise_img,
+            'noise_img2' : noise_img2,
             'vertex_loc' : "./Src/shader/vertex.vert",
             'fragment_loc' : "./Src/shader/fragment.frag"
         }

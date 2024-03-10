@@ -100,7 +100,7 @@ class Game():
                 val = 0'''
             for waterm in self.waters:
                 waterm.update(scroll, self.player.get_rect())
-                waterm.draw(self.display.display, scroll)
+                waterm.draw(self.display.water_display, scroll)
             #grass movement
             if time - self.grass_last_update > self.grass_cooldown:
                 for grass in self.grasses:
@@ -111,5 +111,6 @@ class Game():
                 self.bg_particle_effect.recursive_call(time, self.display, scroll, 1)
             if self.firefly:
                 self.firefly.recursive_call(time, self.display, scroll)
-            self.hud_controls = self.display.clean({"noise_tex1": self.shader_stuf['noise_img']}, { "itime": t.time() - start_time })
+            # print(scroll)
+            self.hud_controls = self.display.clean({"noise_tex1": self.shader_stuf['noise_img'], "noise_tex2": self.shader_stuf['noise_img2']}, { "itime": t.time() - start_time, "cam_scroll" : tuple(list(scroll))})
             # self.hud_controls = self.display.clean({})

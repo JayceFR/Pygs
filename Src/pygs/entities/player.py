@@ -96,7 +96,7 @@ class Player():
                     in_water = True
         if in_water:
             self.speed = 2
-            self.gravity = 2
+            self.gravity = 1
         else:
             self.speed = 4
             self.gravity = 8
