@@ -22,15 +22,15 @@ class FireFly():
     
     def draw(self, display, scroll):
         #pygame.draw.circle(display, (255, 255, 255), (self.x - scroll[0], self.y - scroll[1]), self.radius)
-        display.draw_circle((255,255,255), (self.x - scroll[0], self.y - scroll[1]), self.radius)
+        display.draw_circle((255,255,255,2), (self.x - scroll[0], self.y - scroll[1]), self.radius)
         self.radius *= 8
         display.blit(self.circle_surf(), (int(self.x- self.radius) - scroll[0], int(self.y - self.radius) - scroll[1]), special_flags=BLEND_RGB_ADD)
         self.radius /= 8
     
     def circle_surf(self):
         surf = pygame.Surface((self.radius * 4, self.radius * 4))
-        pygame.draw.circle(surf, (0, 0, 50), (self.radius, self.radius), self.radius)
-        surf.set_colorkey((0, 0, 0,))
+        pygame.draw.circle(surf, (0, 0, 50,0), (self.radius, self.radius), self.radius)
+        surf.set_colorkey((0, 0, 0,0))
         return surf
     
 

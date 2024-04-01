@@ -38,7 +38,7 @@ class Map():
             for tile_name in tile_names:
                 curr_tile = pygame.image.load(location_of_tiles + "/non_collide/" + tile_name).convert_alpha()
                 curr_tile = pygame.transform.scale(curr_tile, (width_of_tiles, width_of_tiles))
-                curr_tile.set_colorkey((0,0,0))
+                curr_tile.set_colorkey((0,0,0,0))
                 self.tile_imgs.append(curr_tile)
         self.tile_rects = []
         map = []

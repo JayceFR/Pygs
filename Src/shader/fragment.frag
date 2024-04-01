@@ -19,7 +19,7 @@ vec2 random2( vec2 p ) {
 }
 
 uniform vec2 scroll = vec2(0.15, -0.05);
-uniform vec2 scroll2 = vec2(0.05, 0.05);
+uniform vec2 scroll2 = vec2(0.15, 0.05);
 
 float seamlessNoise(vec2 uv, float tileSize, sampler2D noise) {
     vec2 st = uv * tileSize;
@@ -70,21 +70,55 @@ void overlay_frag(){
 
 void foreground(){
     vec4 water_color = texture(water_tex, uvs);
-    vec4 tex_color = vec4(texture(tex, uvs).rgb ,1.0);
+    vec4 tex_color = texture(tex, uvs);
     vec2 px_uvs = vec2(floor(uvs.x * 500) / 500, floor(uvs.y * 300) / 300);
     vec2 px_uvs2 = vec2((floor(uvs.x * 500) + cam_scroll.x * 1)/500, (floor(uvs.y * 300) + cam_scroll.y * 1)/300);
     f_color = tex_color;
+    if (tex_color.a == 0.0){
+        //Background layer
+        float energy =  texture(noise_tex2, px_uvs2 +  abs(sin(itime)/8) * scroll2).r * texture(noise_tex2, px_uvs2 + abs(cos(itime)/16) * scroll2).r * texture(noise_tex2, px_uvs2 + scroll2 * itime * 0.3).r ; 
+        // Define gradient colors
+        vec4 color1 = vec4(1.0,1.0,1.0, 1.0); // Transparent
+        vec4 color2 = vec4(0.918, 0.247, 0.969, 1.0); // Almost black
+        vec4 color3 = vec4(0.7818, 0.147, 0.869, 1.0); // Dark orange
+        vec4 color4 = vec4(0.498, 0.510, 0.733, 1.0); // Dark yellow
+        vec4 color5 = vec4(0.7818, 0.147, 0.969, 1.0); // Dark orange
+        vec4 color6 = vec4(0.918, 0.247, 0.969, 1.0); // Almost black
+
+        // Define energy thresholds
+        float threshold1 = 0.0;
+        float threshold2 = 0.1;
+        float threshold3 = 0.15;
+        float threshold4 = 0.25;
+        float threshold5 = 0.3;
+
+        // Interpolate between colors based on energy level
+        vec4 finalColor;
+        if (energy < threshold2) {
+            finalColor = mix(color1, color2, smoothstep(threshold1, threshold2, energy));
+        } else if (energy < threshold3) {
+            finalColor = mix(color2, color3, smoothstep(threshold2, threshold3, energy));
+        } else if (energy < threshold4) {
+            finalColor = mix(color3, color4, smoothstep(threshold3, threshold4, energy));
+        } else if (energy < threshold5) {
+            finalColor = mix(color4, color5, smoothstep(threshold4, threshold5, energy));
+        } else {
+            finalColor =color6 ;
+        }
+        f_color = finalColor;
+    }
     float depth = seamlessNoise(px_uvs2 + scroll * itime * 0.6 , 32.0, noise_tex1) * seamlessNoise(px_uvs2 + scroll2 * itime * 0.3, 32.0, noise_tex2) ;
-    vec4 scree_color = texture(water_tex, px_uvs);
-    f_color = f_color + scree_color;
+    vec4 scree_color = texture(water_tex, px_uvs) * 6;
+    f_color = f_color + water_color;
     vec3 fog_color = vec3(0.55,0.65,0.44);
-    f_color = vec4(mix(fog_color, f_color.rgb, depth * 4.4 ), 0.2);
+    if (depth < 0.2){
+        f_color = vec4(mix(fog_color, f_color.rgb, depth * 4.4 ), 1.0);
+    }
     vec4 ui_color = texture(ui_tex, uvs);
     if (ui_color.a > 0){
         f_color = ui_color;
     }
 }
-
 
 void fire(){
     f_color = vec4(texture(tex, uvs).rgb, 1.0);

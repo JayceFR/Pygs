@@ -19,12 +19,13 @@ class Display():
                 self.window = pygame.Surface((screen_w, screen_h))
             else:
                 self.window = pygame.display.set_mode((screen_w, screen_h))
-            self.display = pygame.Surface((screen_w//2, screen_h//2))
+            self.dummy_display = pygame.Surface((screen_w//2, screen_h//2))
         else:
             if self.open_gl:
-                self.display = pygame.display.set_mode((screen_w, screen_h), pygame.OPENGL | pygame.DOUBLEBUF)
+                self.dummy_display = pygame.display.set_mode((screen_w, screen_h), pygame.OPENGL | pygame.DOUBLEBUF)
             else:
-                self.display = pygame.display.set_mode((screen_w, screen_h))
+                self.dummy_display = pygame.display.set_mode((screen_w, screen_h))
+        self.display = pygame.Surface((screen_w//2, screen_h//2), pygame.SRCALPHA)
         if self.open_gl:
             self.shader_obj = shader.Shader(True, vertex_loc, fragment_loc)
             self.ui_display = pygame.Surface((screen_w//2, screen_h//2), pygame.SRCALPHA)
@@ -32,14 +33,16 @@ class Display():
         pygame.display.set_caption(title)
     
     def redraw(self):
-        self.display.fill((0,0,0))
+        self.dummy_display.fill((0,0,0))
+        self.display.fill((0,0,0,0))
         if self.open_gl:
             self.ui_display.fill((0,0,0,0))
             self.water_display.fill((0,0,0,0))
 
     def clean(self, uniform = {}, variables = {}):
+        self.dummy_display.blit(self.display, (0,0), special_flags=pygame.BLEND_RGBA_ADD)
         if self.double_up:
-            surf = self.display.copy()
+            surf = self.dummy_display.copy()
             surf = pygame.transform.scale(surf, (self.screen_w, self.screen_h))
             self.window.blit(surf, (0,0))
         self.hud.events()
